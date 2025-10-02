@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Cards</title>
+<link rel="stylesheet" href="styles.css"> <!-- paste your CSS here or inline -->
+</head>
+<body>
+
+<div class="site-header">
+    <h1 class="title-gradient">AI Prompt Cards</h1>
+    <p class="subtitle">Click a card to open a prompt or run it in your browser.</p>
+</div>
+
+<div class="container">
+    <div id="cardsGrid" class="cards-grid"></div>
+</div>
+
+<!-- Modal -->
+<div id="promptModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+        <div id="modalTitle" class="modal-title"></div>
+        <div id="modalBody" class="modal-body"></div>
+        <div class="modal-actions">
+            <button class="modal-close" data-action="close">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const prompts = [
+    { id: 'prompt-1', title: 'Brainstorm', description: 'Ask me 5 short and simple, multiple choice questions about my personality, one by one, and then tell me what famous artist or designer I am most like.', content: 'Ask me 5 short and simple, multiple choice questions about my personality, one by one, and then tell me what famous artist or designer I am most like.', externalLink: 'https://aiskillshouse.com/student/qr-mediator.html?uid=553&promptId=17' },
+    { id: 'prompt-2', title: 'Plan', description: 'Help me plan a small, festive get-together for 5 friends at home. Suggest a simple menu, a music playlist theme, and one fun game we can play.', content: 'Help me plan a small, festive get-together for 5 friends at home. Suggest a simple menu, a music playlist theme, and one fun game we can play.', externalLink: 'https://aiskillshouse.com/student/qr-mediator.html?uid=553&promptId=16' },
+    { id: 'prompt-3', title: 'Historical', description: 'Pick a popular historical movie (Bollywood/Tollywood etc.) and point out three major historical inaccuracies in a fun, myth-busting way.', content: 'Pick a popular historical movie (Bollywood/Tollywood etc.) and point out three major historical inaccuracies in a fun, myth-busting way.', externalLink: 'https://aiskillshouse.com/student/qr-mediator.html?uid=553&promptId=15' },
+    { id: 'prompt-4', title: 'Weekend plan', description: 'I have a week-long break. Suggest a location were I can go with my friends for a weekend getaway.', content: 'I have a week-long break. Suggest a location were I can go with my friends for a weekend getaway.', externalLink: 'https://aiskillshouse.com/student/qr-mediator.html?uid=553&promptId=14' },
+    { id: 'prompt-5', title: 'Festive season', description: 'The festive season is here. Suggest 5 creative and eco-friendly ways to decorate my home or hostel room to give it a festive vibe.', content: 'The festive season is here. Suggest 5 creative and eco-friendly ways to decorate my home or hostel room to give it a festive vibe.', externalLink: 'https://aiskillshouse.com/student/qr-mediator.html?uid=553&promptId=13' }
+];
+
+function renderCards() {
+    const grid = document.getElementById('cardsGrid');
+    grid.innerHTML = prompts.map((p, i) => {
+        const borderClass = `google-border-${(i % 5) + 1}`;
+        return `
+        <article class="card ${borderClass}" id="card-${p.id}">
+            <h3 class="card-title">${p.title}</h3>
+            <p class="card-desc">${p.description}</p>
+            <div class="card-actions">
+                <button class="btn btn-outline" data-action="open" data-id="${p.id}">Open Prompt</button>
+            </div>
+        </article>
+        `;
+    }).join('');
+}
+
+function getPromptById(id) { return prompts.find(p => p.id === id); }
+
+function openModalWithPrompt(prompt) {
+    const modal = document.getElementById('promptModal');
+    document.getElementById('modalTitle').textContent = prompt.title;
+    document.getElementById('modalBody').textContent = prompt.content;
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeModal() {
+    document.getElementById('promptModal').setAttribute('aria-hidden', 'true');
+}
+
+function delegate(root, selector, event, handler) {
+    root.addEventListener(event, e => {
+        const target = e.target.closest(selector);
+        if (target && root.contains(target)) handler(e, target);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderCards();
+    const grid = document.getElementById('cardsGrid');
+
+    delegate(grid, 'button[data-action="open"]', 'click', (_, btn) => {
+        const id = btn.getAttribute('data-id');
+        const prompt = getPromptById(id);
+        if (!prompt) return;
+        if (prompt.externalLink) {
+            const a = document.createElement('a');
+            a.href = prompt.externalLink;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.click();
+        } else {
+            openModalWithPrompt(prompt);
+        }
+    });
+
+    const modal = document.getElementById('promptModal');
+    delegate(modal, '[data-action="close"]', 'click', () => closeModal());
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+});
+</script>
+
+</body>
+</html>
